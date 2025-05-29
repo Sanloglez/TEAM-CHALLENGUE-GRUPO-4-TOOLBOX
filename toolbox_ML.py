@@ -1,4 +1,10 @@
 import pandas as pd
+import warnings
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import f_oneway, kruskal, ttest_ind
+from scipy.stats import pearsonr
 
 def describe_df(df):
     """
@@ -17,27 +23,23 @@ def describe_df(df):
     - DataFrame con los parámetros descriptivos
     """
     
-    columnas = df.columns.to_list()
-    dicc = {}
-    for col in columnas:
-        dicc[col] = []
-        dicc[col].append(df[col].dtype)
-        dicc[col].append(df[col].isna().sum() / len(df) * 100)
-        verificar_si_es_numerico = np.issubdtype(df[col].dtype,np.number)
-        if (verificar_si_es_numerico):
-            dicc[col].append("Yes" if np.isinf(df[col]).any() else "No")
-        else:
-            dicc[col].append("No")
-        dicc[col].append(df[col].nunique())
-        dicc[col].append(df[col].nunique() / len(df))
-    df_return  = pd.DataFrame(dicc,index=["DATA_TYPE","MISSINGS (%)","VALORES_INFINITOS","UNIQUE_VALUES","CARDIN (%)"])
-    return df_return
+    summary_df = pd.DataFrame(index=['Tipo', '% Nulos', "Valores infinitos", 'Valores Únicos', '% Cardinalidad'])
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.stats import f_oneway, kruskal, ttest_ind
+    for column in df.columns:
+        tipo = df[column].dtype
+        porcentaje_nulos = df[column].isnull().mean() * 100
+        verificar_si_es_numerico = np.issubdtype(df[column].dtype,np.number)
+        if (verificar_si_es_numerico):
+            valores_inf = ("Yes" if np.isinf(df[column]).any() else "No")
+        else:
+            valores_inf = "No"
+        valores_unicos = df[column].nunique()
+        cardinalidad = (valores_unicos / len(df)) * 100
+
+        summary_df[column] = [tipo, f"{porcentaje_nulos:.2f}%",valores_inf, valores_unicos, f"{cardinalidad:.2f}%"]
+
+    return summary_df
+
 
 def tipifica_variables(df, umbral_categoria=10, umbral_continua=0.2):
     """
@@ -128,11 +130,6 @@ def get_features_num_regression(df,target_col,umbral_corr,pvalue=None,mostrar=Fa
                 lista.append(col)
     return lista
 
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.stats import pearsonr
 
 def plot_features_num_regression(df, target_col="", columns=[], umbral_corr=0, pvalue=None):
     """
