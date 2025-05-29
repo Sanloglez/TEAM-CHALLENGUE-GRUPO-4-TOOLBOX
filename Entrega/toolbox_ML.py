@@ -352,4 +352,3 @@ def plot_features_cat_regression(df, target_col="", columns=[], pvalue=0.05, wit
             print(f"Error evaluando la columna '{col}': {e}")
 
     return columnas_significativas
-
