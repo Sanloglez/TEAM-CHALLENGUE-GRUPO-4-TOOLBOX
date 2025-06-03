@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as p
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
